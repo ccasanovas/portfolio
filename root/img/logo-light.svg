@@ -1,0 +1,12 @@
+<svg width="141" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+    <text x="70" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">C</text>
+    <text x="180" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">r</text>
+    <text x="240" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">i</text>
+    <text x="280" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">s</text>
+    <text x="360" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">t</text>
+    <text x="410" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">i</text>
+    <text x="450" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">a</text>
+    <text x="540" y="160" font-size="150" fill="#FFFFFF" font-family="Arial, sans-serif">n</text>
+    <!-- Reemplazamos el punto con un círculo -->
+    <circle cx="640" cy="155" r="10" fill="#91FF00" />
+</svg>

@@ -1,0 +1,130 @@
+.toggler-menu {
+    background-color: transparent;
+    color: var(--px-white);
+    border: 1px solid rgba(255,255,255,.2) !important;
+    border-radius: 5px;
+    padding: 0 25px;
+    height: 40px;
+    line-height: 1;
+    position: relative;
+    margin-left: 15px;
+    .fixed-header & {
+    	color: var(--px-black);
+    	border: 1px solid rgba(0,0,0,.2) !important;
+    }
+    span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        width: 17px;
+        box-shadow: 0 0 0 1px currentColor, 0px -7px 0 1px currentColor, 0 7px 0 1px currentColor;
+        height: 0;
+    }
+}
+
+
+.header-top-fixed {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 111;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	transition: ease all 0.35s;
+	background-color: transparent;
+	.fixed-header & {
+		background-color: var(--px-white);
+		box-shadow: 0 0.125rem 0.25rem rgba(55, 55, 55, 0.075);
+	}
+	> .container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		@include down-md {
+			max-width: 100%;
+		}
+	}
+	.main-menu {
+		display: flex;
+		list-style: none;
+		flex: 1;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		@include down-md {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background-color: var(--px-white);
+			border-top: 1px solid #eee;
+			flex-direction: column;
+			padding: 10px 20px;
+			display: none;
+			box-shadow: 0 0.125rem 0.25rem rgba(55, 55, 55, 0.075);
+		}
+		> li {
+			padding: 0 20px;
+			@include down-md {
+				padding: 8px 0;
+			}
+			a {
+				padding: 8px 0;
+				text-transform: uppercase;
+				color: var(--px-white);
+				font-size: 14px;
+				letter-spacing: 1px;
+				font-weight: 500;
+				position: relative;
+				@include down-md {
+					color: var(--px-black);
+				}
+				&:after {
+					content: "";
+					position: absolute;
+					left: auto;
+					right: 0;
+					bottom: 0;
+					width: 0;
+					height: 2px;
+					transition: ease all 0.35s;
+					background-color: currentColor;
+				}
+				&.active {
+					&:after {
+						width: 100%;
+						left: 0;
+						right: auto;
+					}
+				}
+				.fixed-header & {
+					color: var(--px-black);
+				}
+			}
+		}
+	}
+
+	.logo-dark {
+		display: none;
+		.fixed-header & {
+			display: block;
+		}
+	}
+	.logo-light {
+		.fixed-header & {
+			display: none;
+		}
+	}
+	&.menu-open {
+		@include down-lg {
+			.main-menu {
+				display: flex;
+				align-items: flex-start;
+			}
+		}
+	}
+}
