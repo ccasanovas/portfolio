@@ -1,72 +1,71 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"encoding/base64"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
+	"net/http"
 	"os"
+
+	"cloud.google.com/go/storage"
 )
 
-func getFirebaseConfig() map[string]string {
-	return map[string]string{
-		"apiKey":            os.Getenv("FIREBASE_API_KEY"),
-		"authDomain":        os.Getenv("FIREBASE_AUTH_DOMAIN"),
-		"projectId":         os.Getenv("FIREBASE_PROJECT_ID"),
-		"storageBucket":     os.Getenv("FIREBASE_STORAGE_BUCKET"),
-		"messagingSenderId": os.Getenv("FIREBASE_MESSAGING_SENDER_ID"),
-		"appId":             os.Getenv("FIREBASE_APP_ID"),
-		"measurementId":     os.Getenv("FIREBASE_MEASUREMENT_ID"),
-	}
+type FirebaseConfig struct {
+	APIKey            string `json:"apiKey"`
+	AuthDomain        string `json:"authDomain"`
+	ProjectID         string `json:"projectId"`
+	StorageBucket     string `json:"storageBucket"`
+	MessagingSenderID string `json:"messagingSenderId"`
+	AppID             string `json:"appId"`
+	MeasurementID     string `json:"measurementId"`
 }
 
-func encryptFirebaseConfig(config map[string]string, secretKey string) (string, error) {
-	jsonData, err := json.Marshal(config)
+func getFirebaseConfig(ctx context.Context, bucketName string, fileName string) (*FirebaseConfig, error) {
+	client, err := storage.NewClient(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error al serializar JSON: %w", err)
+		return nil, fmt.Errorf("failed to create storage client: %v", err)
 	}
+	defer client.Close()
 
-	key := []byte(secretKey)
-	if len(key) != 32 {
-		return "", fmt.Errorf("la clave debe tener 32 bytes (256 bits)")
-	}
-	block, err := aes.NewCipher(key)
+	bucket := client.Bucket(bucketName)
+	object := bucket.Object(fileName)
+
+	reader, err := object.NewReader(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error al crear el bloque AES: %w", err)
+		return nil, fmt.Errorf("failed to open object: %v", err)
+	}
+	defer reader.Close()
+
+	var config FirebaseConfig
+	if err := json.NewDecoder(reader).Decode(&config); err != nil {
+		return nil, fmt.Errorf("failed to parse config JSON: %v", err)
 	}
 
-	nonce := make([]byte, 12)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", fmt.Errorf("error al generar el nonce: %w", err)
+	return &config, nil
+}
+
+func FirebaseConfigHandler(w http.ResponseWriter, r *http.Request) {
+	bucketName := os.Getenv("FIREBASE_BUCKET_NAME")
+	fileName := os.Getenv("FIREBASE_FILE_NAME")
+
+	if bucketName == "" || fileName == "" {
+		http.Error(w, "FIREBASE_BUCKET_NAME or FIREBASE_FILE_NAME not set in environment variables", http.StatusInternalServerError)
+		return
 	}
 
-	aesGCM, err := cipher.NewGCM(block)
+	ctx := r.Context()
+	config, err := getFirebaseConfig(ctx, bucketName, fileName)
 	if err != nil {
-		return "", fmt.Errorf("error al crear GCM: %w", err)
+		http.Error(w, fmt.Sprintf("Error fetching Firebase config: %v", err), http.StatusInternalServerError)
+		return
 	}
 
-	ciphertext := aesGCM.Seal(nil, nonce, jsonData, nil)
-
-	finalData := append(nonce, ciphertext...)
-	return base64.StdEncoding.EncodeToString(finalData), nil
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(config)
 }
 
 func main() {
-	firebaseConfig := getFirebaseConfig()
-
-	secretKey := os.Getenv("SECRET_KEY")
-	if secretKey == "" {
-		log.Fatal("SECRET_KEY no está configurada en las variables de entorno")
-	}
-
-	encryptedConfig, err := encryptFirebaseConfig(firebaseConfig, secretKey)
-	if err != nil {
-		log.Fatalf("Error al encriptar configuración: %v", err)
-	}
-
-	fmt.Println("Configuración encriptada:", encryptedConfig)
+	http.HandleFunc("/app/get-config", FirebaseConfigHandler)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
