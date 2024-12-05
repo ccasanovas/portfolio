@@ -20,6 +20,16 @@ type FirebaseConfig struct {
 }
 
 func GetFirebaseConfig(w http.ResponseWriter, r *http.Request) {
+    allowedOrigin := "https://portfoliocristianarch.web.app"
+    w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+    w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+    if r.Method == http.MethodOptions {
+        w.WriteHeader(http.StatusOK)
+        return
+    }
+
 	ctx := r.Context()
 	bucketName := os.Getenv("FIREBASE_BUCKET_NAME")
 	fileName := os.Getenv("FIREBASE_FILE_NAME")
