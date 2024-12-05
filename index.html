@@ -19,16 +19,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
-        // Cargar la configuración de Firebase desde un archivo JSON
         async function loadFirebaseConfig() {
             try {
-                const response = await fetch('/root/config/firebase-config.json'); // Cambia el path si lo alojas en otro servidor
+                const response = await fetch('https://us-central1-portfoliocristianarch.cloudfunctions.net/get-app-config');
+
                 if (!response.ok) {
                     throw new Error('Error al cargar la configuración de Firebase');
                 }
+
                 const firebaseConfig = await response.json();
 
-                // Inicializar Firebase con la configuración cargada
                 const app = initializeApp(firebaseConfig);
                 const analytics = getAnalytics(app);
                 console.log('Firebase inicializado correctamente');
@@ -171,7 +171,7 @@
                     </div>
                     <div class="col-lg-5">
                         <div class="hs-banner">
-                            <img src="root/img/hero-image.png" title="" alt="">
+                            <img src="root/img/hero-image-portfolio.png" title="" alt="">
                         </div>
                     </div>
                 </div>
@@ -417,7 +417,7 @@
                     </div>
                     <div class="col-lg-5 d-flex justify-content-center align-items-end">
                         <div class="about-banner">
-                            <img src="root/img/about-me-01.png" title="Cristian Casanovas - Architect & DevSecOps Expert" alt="About Cristian Casanovas">
+                            <img src="root/img/hero-subimage-portfolio.png" title="Cristian Casanovas - Architect & DevSecOps Expert" alt="About Cristian Casanovas">
                         </div>
                     </div>
                 </div>
